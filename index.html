@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>가위바위보</title>
+
+    <link href="index.css" type="text/css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <h1>가위바위보 게임</h1>
+
+    <table>
+      <tr>
+        <td>
+          <img id="user" src="qmark.jpg" />
+        </td>
+        <td>
+          <img id="computer" src="qmark.jpg" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div>Me</div>
+        </td>
+        <td>
+          <div>Computer</div>
+        </td>
+      </tr>
+    </table>
+
+    <div class="btns">
+      <button class="btn" value="1">가위</button>
+      <button class="btn" value="0">바위</button>
+      <button class="btn" value="2">보</button>
+    </div>
+
+    <h3 id="result" />
+
+    <script src="index.js" />
+  </body>
+</html>
