@@ -1,0 +1,49 @@
+* {
+  font-family: "IBM Plex Sans KR", sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+h1 {
+  font-family: "Black Han Sans", sans-serif;
+}
+
+#user,
+#computer {
+  width: 180px;
+  height: 180px;
+  border: white;
+  border-radius: 100%;
+}
+
+.btns {
+  display: flex;
+  gap: 5px;
+
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  background-color: white;
+  border: 1px solid #dfdfdf;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+}
+
+table {
+  text-align: center;
+}
+
+td {
+  padding: 10px 30px;
+}

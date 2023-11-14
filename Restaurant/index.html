@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>식당 시뮬레이션</title>
+
+    <link href="index.css" type="text/css" rel="stylesheet" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="foodBtns">
+      <button id="sundae" class="btn">순댓국</button>
+      <button id="haejang" class="btn">해장국</button>
+    </div>
+
+    <div class="logs">
+      <div class="log">
+        <h4>주문</h4>
+        <div class="order-list"></div>
+      </div>
+
+      <div class="log">
+        <h4>요리사</h4>
+        <div class="status">
+          첫 번째 요리사 :
+          <div id="chef-one">대기중</div>
+        </div>
+        <div class="status">
+          두 번째 요리사 :
+          <div id="chef-two">대기중</div>
+        </div>
+      </div>
+
+      <div class="log">
+        <h4>서버</h4>
+        <div class="status">
+          첫 번째 서버 :
+          <div id="server-one">대기중</div>
+        </div>
+        <div class="status">
+          두 번째 서버 :
+          <div id="server-two">대기중</div>
+        </div>
+      </div>
+
+      <div class="log">
+        <h4>끝난 주문</h4>
+        <div class="done-list"></div>
+      </div>
+    </div>
+
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>
