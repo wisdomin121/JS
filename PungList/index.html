@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pung List</title>
+
+    <link href="index.css" type="text/css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <h2>Pung List</h2>
+
+    <div id="div-generate-item" class="div-row">
+      <input id="input-item-name" />
+      <button value="5">5초</button>
+      <button value="10">10초</button>
+      <button value="20">20초</button>
+    </div>
+
+    <div class="div-row">
+      개수 :
+      <div id="list-count">0</div>
+      개 / 평균 남은시간 :
+      <div id="average-time">0</div>
+      초
+    </div>
+
+    <div class="div-row">
+      <button id="btn-all-reset">초기화</button>
+      <button id="btn-all-twice">2배로 늘리기</button>
+      <button id="btn-all-add">전체 5초 추가</button>
+      <button id="btn-all-stop">전체 중지</button>
+      <button id="btn-all-start">전체 시작</button>
+    </div>
+
+    <ul id="ul-pung-list"></ul>
+
+    <script type="module" src="index.js"></script>
+  </body>
+</html>
