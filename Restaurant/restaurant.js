@@ -25,32 +25,42 @@ class Restaurant {
   }
 
   async start() {
-    this.cookOrder()
-      .then((order) => this.serveOrder(order))
-      .then((order) => this.done(order));
+    const chef = await this.findChef();
+    const order = this.cookOrder();
+    await chef.cooking(order);
+
+    const server = await this.findServer();
+    this.serveOrder(order);
+    await server.serving();
+
+    this.done(order);
   }
 
-  async cookOrder() {
+  findChef() {
     return new Promise((resolve) => {
       const interval = setInterval(() => {
-        let chef =
+        const chef =
           this.chefOne.status === "waiting" ? this.chefOne : this.chefTwo.status === "waiting" ? this.chefTwo : null;
 
         if (chef) {
-          const order = this.orderList.shift();
-          this.updateOrder();
-          this.cookingList.set(order.index, order);
-
           clearInterval(interval);
-          resolve({ chef, order });
+          resolve(chef);
         }
       });
-    }).then(({ chef, order }) => chef.cooking(order));
+    });
   }
 
-  async serveOrder(order) {
+  cookOrder() {
+    const order = this.orderList.shift();
+    this.cookingList.set(order.index, order);
+    this.updateOrder();
+
+    return order;
+  }
+
+  findServer() {
     return new Promise((resolve) => {
-      const interval = setInterval(async () => {
+      const interval = setInterval(() => {
         const server =
           this.serverOne.status === "waiting"
             ? this.serverOne
@@ -59,23 +69,22 @@ class Restaurant {
             : null;
 
         if (server) {
-          this.servingList.set(order.index, order);
-
           clearInterval(interval);
-          resolve({ server, order });
+          resolve(server);
         }
       });
-    }).then(({ server, order }) => {
-      this.cookingList.delete(order.index);
-      return server.serving(order);
     });
   }
 
+  serveOrder(order) {
+    this.servingList.set(order.index, order);
+    this.cookingList.delete(order.index);
+  }
+
   done(order) {
-    console.log(order);
     this.doneList.push(order);
-    this.updateDone();
     this.servingList.delete(order.index);
+    this.updateDone();
   }
 
   updateOrder() {

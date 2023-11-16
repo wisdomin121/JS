@@ -18,7 +18,7 @@ class Chef extends Human {
         this.status = "waiting";
         this.changeStatus();
 
-        resolve(order);
+        resolve();
       }, cookingTime * 1000);
     });
   }

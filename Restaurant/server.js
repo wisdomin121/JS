@@ -8,7 +8,7 @@ class Server extends Human {
     this.className = `server-${seq}`;
   }
 
-  serving(order) {
+  serving() {
     return new Promise((resolve) => {
       this.status = "serving";
       this.changeStatus();
@@ -17,7 +17,7 @@ class Server extends Human {
         this.status = "waiting";
         this.changeStatus();
 
-        resolve(order);
+        resolve();
       }, this.servingTime * 1000);
     });
   }
