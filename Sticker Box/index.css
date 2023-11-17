@@ -1,0 +1,32 @@
+* {
+  font-family: "IBM Plex Sans KR", sans-serif;
+}
+
+button {
+  cursor: pointer;
+}
+
+.sticker {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 300px;
+  padding: 10px 20px;
+}
+
+.item {
+  position: absolute;
+  display: flex;
+  gap: 5px;
+  width: 260px;
+  padding: 10px 20px;
+  background-color: white;
+}
+
+.items-div {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}

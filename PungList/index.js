@@ -95,6 +95,7 @@ divGenerateItem.addEventListener("click", (e) => {
 
     index++;
     inputItemName.value = "";
+    inputItemName.focus();
   }
 });
 
