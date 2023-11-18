@@ -1,5 +1,5 @@
 * {
-  font-family: "IBM Plex Sans KR", sans-serif;
+  font-family: 'IBM Plex Sans KR', sans-serif;
 }
 
 button {
@@ -22,6 +22,7 @@ button {
   width: 260px;
   padding: 10px 20px;
   background-color: white;
+  border: 1px solid black;
 }
 
 .items-div {

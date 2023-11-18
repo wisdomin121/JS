@@ -1,4 +1,4 @@
-import { Item } from "./Item.js";
+import { Item } from './Item.js';
 
 export class Sticker {
   static highestZIndex = 0;
@@ -20,19 +20,19 @@ export class Sticker {
 
   // 스티커 생성
   generateSticker(stickerIndex) {
-    const sticker = document.createElement("div");
-    const stickerTitle = document.createElement("div");
-    const stickerAddBtn = document.createElement("button");
-    const stickerDeleteBtn = document.createElement("button");
-    const itemsDiv = document.createElement("div");
+    const sticker = document.createElement('div');
+    const stickerTitle = document.createElement('div');
+    const stickerAddBtn = document.createElement('button');
+    const stickerDeleteBtn = document.createElement('button');
+    const itemsDiv = document.createElement('div');
 
-    sticker.classList.add("sticker");
-    itemsDiv.classList.add("items-div");
-    stickerDeleteBtn.classList.add("btn-sticker-delete");
+    sticker.classList.add('sticker');
+    itemsDiv.classList.add('items-div');
+    stickerDeleteBtn.classList.add('btn-sticker-delete');
 
     stickerTitle.innerText = `Sticker ${stickerIndex}`;
-    stickerAddBtn.innerText = "항목 추가";
-    stickerDeleteBtn.innerText = "스티커 삭제";
+    stickerAddBtn.innerText = '항목 추가';
+    stickerDeleteBtn.innerText = '스티커 삭제';
 
     sticker.style = `
       top: ${stickerIndex * 10 + 40}px;
@@ -63,17 +63,17 @@ export class Sticker {
       this.setTop(sticker);
 
       function onMouseMove(e) {
-        sticker.style.left = e.pageX - shiftX + "px";
-        sticker.style.top = e.pageY - shiftY + "px";
+        sticker.style.left = e.pageX - shiftX + 'px';
+        sticker.style.top = e.pageY - shiftY + 'px';
       }
 
       function onMouseUp() {
-        document.removeEventListener("mousemove", onMouseMove);
-        document.removeEventListener("mouseup", onMouseUp);
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
       }
 
-      document.addEventListener("mousemove", onMouseMove);
-      document.addEventListener("mouseup", onMouseUp);
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
 
       sticker.onmouseup = null;
     };
@@ -117,12 +117,12 @@ export class Sticker {
 
   // 아이템 삭제
   deleteItem(newItem, itemList) {
-    newItem.addEventListener("click", (e) => {
+    newItem.addEventListener('click', (e) => {
       const itemListHeight = itemList.clientHeight;
 
       const tagName = e.target.tagName.toLowerCase();
 
-      if (tagName === "button") {
+      if (tagName === 'button') {
         const deleteIdx = this.items.findIndex((item) => item === newItem);
         this.items.splice(deleteIdx, 1);
         newItem.remove();
@@ -130,40 +130,35 @@ export class Sticker {
         itemList.style = `height: ${itemListHeight - 50.2}px;`;
 
         this.renderItem(itemList);
-      } else if (tagName === "div") {
+      }
+      // 아이템 움직이기
+      else if (tagName === 'div') {
         newItem.onmousedown = (e) => {
           e.stopPropagation();
 
-          newItem.style.position = "fixed";
-          newItem.style.zIndex = 1000;
+          const parentRect = newItem.parentElement.getBoundingClientRect();
+          const itemRect = newItem.getBoundingClientRect();
 
-          newItem.style.top = e.clientY;
-          newItem.style.left = e.clientX;
+          const offsetX = e.clientX - itemRect.left;
+          const offsetY = e.clientY - itemRect.top;
+
+          function onMouseMove(e) {
+            const x = e.clientX - parentRect.left - offsetX;
+            const y = e.clientY - parentRect.top - offsetY;
+
+            newItem.style.left = `${x}px`;
+            newItem.style.top = `${y}px`;
+          }
+
+          function onMouseUp() {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+          }
+
+          document.addEventListener('mousemove', onMouseMove);
+          document.addEventListener('mouseup', onMouseUp);
         };
-
-        function onMouseMove(e) {
-          // newItem.style.left = newItem.offsetWidth / 2 + "px";
-          // newItem.style.top = newItem.offsetHeight / 2 + "px";
-        }
-
-        // function onMouseUp() {
-        //   newItem.style.position = "static";
-        //   newItem.style.zIndex = 0;
-        //   newItem = null;
-        //   document.removeEventListener("mousemove", onMouseMove);
-        //   document.removeEventListener("mouseup", onMouseUp);
-        // }
-
-        document.addEventListener("mousemove", onMouseMove);
-        // document.addEventListener("mouseup", onMouseUp);
-
-        // newItem.onmouseup = null;
       }
     });
   }
 }
-
-// document.addEventListener("mousemove", onMouseMove);
-// document.addEventListener("mouseup", onMouseUp);
-
-// sticker.onmouseup = null;
