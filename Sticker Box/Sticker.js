@@ -3,9 +3,11 @@ import { Item } from './Item.js';
 export class Sticker {
   static highestZIndex = 0;
 
-  constructor(stickerIndex) {
-    this.stickerEl = this.generateSticker(stickerIndex);
-    this.stickerIndex = stickerIndex;
+  constructor(stickerBox) {
+    this.stickerBox = stickerBox;
+    this.stickerIndex = stickerBox.stickerIndex;
+    this.stickerEl = this.generateSticker(stickerBox.stickerIndex);
+
     this.items = [];
   }
 

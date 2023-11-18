@@ -49,27 +49,65 @@ export class Item {
     item.onmousedown = (e) => {
       e.stopPropagation();
 
-      const parentRect = item.parentElement.getBoundingClientRect();
+      const itemList = item.parentElement;
+      const parentRect = itemList.getBoundingClientRect();
       const itemRect = item.getBoundingClientRect();
 
       const offsetX = e.clientX - itemRect.left;
       const offsetY = e.clientY - itemRect.top;
 
       function onMouseMove(e) {
-        const x = e.clientX - parentRect.left - offsetX;
-        const y = e.clientY - parentRect.top - offsetY;
+        const x = e.clientX - offsetX - parentRect.left;
+        const y = e.clientY - offsetY - parentRect.top;
 
         item.style.left = `${x}px`;
         item.style.top = `${y}px`;
       }
 
-      function onMouseUp() {
+      function onMouseUp(mouseUpEvent) {
+        function getNowElement(x, y) {
+          const elements = document.elementsFromPoint(x, y);
+          let isPass = false;
+
+          for (let i = elements.length - 1; i >= 0; i--) {
+            const element = elements[i];
+            const rect = element.getBoundingClientRect();
+
+            if (
+              x >= rect.left &&
+              x <= rect.right &&
+              y >= rect.top &&
+              y <= rect.bottom
+            ) {
+              if (isPass) return element;
+              else isPass = true;
+            }
+          }
+
+          return null;
+        }
+
+        const dropTarget = getNowElement(
+          mouseUpEvent.clientX,
+          mouseUpEvent.clientY
+        );
+
+        // 다른 div로 옮겨갔을 때
+        if (
+          dropTarget.className === 'items-div' &&
+          dropTarget !== item.parentElement
+        ) {
+          this.deleteItem(item);
+
+          // TODO: this.sticker에 dropTarget을 stickerEl로 가지고 있는 Sticker 클래스 객체를 집어넣어야 함..
+        }
+
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
       }
 
       document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
+      document.addEventListener('mouseup', onMouseUp.bind(this));
     };
   }
 }
