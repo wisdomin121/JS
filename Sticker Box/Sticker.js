@@ -28,6 +28,7 @@ export class Sticker {
 
     sticker.classList.add('sticker');
     itemsDiv.classList.add('items-div');
+    stickerAddBtn.classList.add('btn-item-add');
     stickerDeleteBtn.classList.add('btn-sticker-delete');
 
     stickerTitle.innerText = `Sticker ${stickerIndex}`;
@@ -40,17 +41,45 @@ export class Sticker {
       background-color: ${this.getRandomRGB()};
     `;
 
-    // 스티커 내의 버튼 onclick
-    stickerDeleteBtn.onclick = () => this.deleteSticker();
-    stickerAddBtn.onclick = () => this.generateItem();
-
     sticker.append(stickerTitle, stickerAddBtn, stickerDeleteBtn, itemsDiv);
 
     // 이벤트 붙이기
+    this.addItem(sticker);
+    this.deleteSticker(sticker);
     this.moveSticker(sticker);
     this.setTop(sticker);
 
     return sticker;
+  }
+
+  // 스티커의 항목 생성
+  addItem(sticker) {
+    const btnItemAdd = sticker.querySelector('.btn-item-add');
+
+    btnItemAdd.onclick = () => {
+      const itemList = sticker.children[3];
+      const itemListHeight = itemList.clientHeight;
+      const newItem = new Item(this).itemEl;
+
+      this.items.push(newItem);
+      itemList.style = `height: ${itemListHeight + 50.2}px;`;
+
+      this.renderItem(itemList);
+    };
+  }
+
+  renderItem(itemList) {
+    this.items.forEach((item, index) => {
+      item.style.top = `${50.2 * index}px`;
+      itemList.append(item);
+    });
+  }
+
+  // 스티커 삭제
+  deleteSticker(sticker) {
+    const btnStickerDelete = sticker.querySelector('.btn-sticker-delete');
+
+    btnStickerDelete.onclick = () => sticker.remove();
   }
 
   // 스티커의 움직임
@@ -86,79 +115,5 @@ export class Sticker {
   // 스티커 최상단으로 이동
   setTop(sticker) {
     sticker.style.zIndex = Sticker.highestZIndex++;
-  }
-
-  // 스티커의 항목 생성
-  generateItem() {
-    const itemList = this.stickerEl.children[3];
-    const itemListHeight = itemList.clientHeight;
-    const newItem = new Item(itemList.children.length).itemEl;
-
-    this.items.push(newItem);
-    itemList.style = `height: ${itemListHeight + 50.2}px;`;
-
-    this.renderItem(itemList);
-
-    // 이벤트 붙이기
-    this.deleteItem(newItem, itemList);
-  }
-
-  renderItem(itemList) {
-    this.items.forEach((item, index) => {
-      item.style.top = `${50.2 * index}px`;
-      itemList.append(item);
-    });
-  }
-
-  // 스티커 삭제
-  deleteSticker() {
-    this.stickerEl.remove();
-  }
-
-  // 아이템 삭제
-  deleteItem(newItem, itemList) {
-    newItem.addEventListener('click', (e) => {
-      const itemListHeight = itemList.clientHeight;
-
-      const tagName = e.target.tagName.toLowerCase();
-
-      if (tagName === 'button') {
-        const deleteIdx = this.items.findIndex((item) => item === newItem);
-        this.items.splice(deleteIdx, 1);
-        newItem.remove();
-
-        itemList.style = `height: ${itemListHeight - 50.2}px;`;
-
-        this.renderItem(itemList);
-      }
-      // 아이템 움직이기
-      else if (tagName === 'div') {
-        newItem.onmousedown = (e) => {
-          e.stopPropagation();
-
-          const parentRect = newItem.parentElement.getBoundingClientRect();
-          const itemRect = newItem.getBoundingClientRect();
-
-          const offsetX = e.clientX - itemRect.left;
-          const offsetY = e.clientY - itemRect.top;
-
-          function onMouseMove(e) {
-            const x = e.clientX - parentRect.left - offsetX;
-            const y = e.clientY - parentRect.top - offsetY;
-
-            newItem.style.left = `${x}px`;
-            newItem.style.top = `${y}px`;
-          }
-
-          function onMouseUp() {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-          }
-
-          document.addEventListener('mousemove', onMouseMove);
-          document.addEventListener('mouseup', onMouseUp);
-        };
-      }
-    });
   }
 }
