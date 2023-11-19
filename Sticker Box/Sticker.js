@@ -20,9 +20,7 @@ export class Sticker {
     return `rgb(${r}, ${g}, ${b})`;
   }
 
-  // 스티커 생성
-  generateSticker(stickerIndex) {
-    // UI
+  generateStickerUI(stickerIndex) {
     const sticker = document.createElement('div');
     const stickerTitle = document.createElement('div');
     const stickerAddBtn = document.createElement('button');
@@ -48,6 +46,13 @@ export class Sticker {
 
     sticker.append(stickerTitle, stickerAddBtn, stickerDeleteBtn, itemsDiv);
 
+    return sticker;
+  }
+
+  // 스티커 생성
+  generateSticker(stickerIndex) {
+    const sticker = this.generateStickerUI(stickerIndex);
+
     // 이벤트 추가
     this.generateItem(sticker);
     this.deleteSticker(sticker);
@@ -70,31 +75,40 @@ export class Sticker {
     this.items.push(item);
 
     const itemsDiv = this.stickerEl.children[3];
-    const itemsDivHeight = itemsDiv.clientHeight;
 
-    itemsDiv.style = `height: ${itemsDivHeight + 50.2}px;`;
     itemsDiv.style.margin = '0px';
     itemsDiv.style.padding = '0px';
 
     this.renderItem(itemsDiv);
   }
 
+  // itemsDiv 렌더링
   renderItem(itemsDiv) {
     if (this.items.length === 0) {
       itemsDiv.style = `height: 0px`;
       return;
     }
 
+    itemsDiv.style.height = `${this.items.length * 50.2}px`;
+
     this.items.forEach((item, index) => {
-      item.itemEl.style.top = `${50.2 * index}px`;
-      itemsDiv.append(item.itemEl);
+      if (item === 'EMPTY') {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.style.top = `${50.2 * index}px`;
+        emptyDiv.style.height = '47.44px';
+        emptyDiv.style.backgroundColor = '#000000';
+
+        itemsDiv.append(document.createElement('div'));
+      } else {
+        item.itemEl.style.top = `${50.2 * index}px`;
+        itemsDiv.append(item.itemEl);
+      }
     });
   }
 
   // 스티커 삭제
   deleteSticker(sticker) {
     const btnStickerDelete = sticker.querySelector('.btn-sticker-delete');
-
     btnStickerDelete.onclick = () => sticker.remove();
   }
 

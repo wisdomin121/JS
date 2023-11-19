@@ -6,8 +6,7 @@ export class Item {
     this.itemEl = this.generateItem();
   }
 
-  generateItem() {
-    // UI
+  generateItemUI() {
     const item = document.createElement('li');
     const itemTitle = document.createElement('div');
     const itemDeleteBtn = document.createElement('button');
@@ -21,7 +20,10 @@ export class Item {
 
     item.append(itemTitle, itemDeleteBtn);
 
-    // 클릭 이벤트 핸들러 등록
+    return item;
+  }
+
+  patchItemEvent(item) {
     item.addEventListener('click', (e) => {
       const tagName = e.target.tagName.toLowerCase();
 
@@ -31,6 +33,14 @@ export class Item {
         this.moveItem(this);
       }
     });
+
+    return item;
+  }
+
+  generateItem() {
+    // UI
+    const itemUI = this.generateItemUI();
+    const item = this.patchItemEvent(itemUI);
 
     return item;
   }
@@ -52,12 +62,17 @@ export class Item {
 
   // 아이템 이동
   moveItem(item) {
+    let draggingItem = null;
+
     item.itemEl.addEventListener('mousedown', (e) => {
       e.stopPropagation();
+
+      draggingItem = item.itemEl;
 
       item.sticker.setTop(item.sticker.stickerEl);
       item.itemEl.style.cursor = 'grabbing';
 
+      // 원래 자리 기억
       const originalY = item.itemEl.style.top;
       const originalZIndex = item.itemEl.style.zIndex;
 
@@ -69,44 +84,113 @@ export class Item {
       const itemInnerX = e.clientX - itemRect.left;
       const itemInnerY = e.clientY - itemRect.top;
 
-      const onMouseMove = (moveEvent) => {
-        const x = moveEvent.clientX - itemInnerX - parentRect.left;
-        const y = moveEvent.clientY - itemInnerY - parentRect.top;
+      let insertIndex;
+      let toSticker;
 
-        item.itemEl.style.left = `${x}px`;
-        item.itemEl.style.top = `${y}px`;
+      const onMouseMove = (moveEvent) => {
+        const x = moveEvent.clientX;
+        const y = moveEvent.clientY;
+
+        item.itemEl.style.left = `${x - itemInnerX - parentRect.left}px`;
+        item.itemEl.style.top = `${y - itemInnerY - parentRect.top}px`;
         item.itemEl.style.zIndex = 1000;
         item.itemEl.style.cursor = 'grabbing';
+
+        const closestItemEl = document.elementsFromPoint(x, y)[1];
+        const isTop =
+          closestItemEl.style.height / 2 >
+          document.clientX - closestItemEl.getBoundingClientRect().top;
+
+        if (
+          closestItemEl &&
+          closestItemEl.classList.contains('item') &&
+          closestItemEl !== draggingItem
+        ) {
+          const stickers = item.sticker.stickerBox.stickers;
+          let closestItem;
+
+          outer: for (const sticker of stickers) {
+            const items = sticker.items;
+
+            for (let item of items) {
+              if (item.itemEl === closestItemEl) {
+                closestItem = item;
+                toSticker = sticker;
+                break outer;
+              }
+            }
+          }
+
+          // 옮겨갈 sticker에 공간 마련하기
+          // TODO: 옮겨갈 STICKER가 원래 sticker이면 ?
+          insertIndex = toSticker.items.findIndex(
+            (item) =>
+              item !== 'EMPTY' &&
+              item.itemEl.id.split('-')[1] ===
+                closestItem.itemEl.id.split('-')[1]
+          );
+
+          if (isTop && insertIndex === 1) insertIndex--;
+
+          if (toSticker.items[insertIndex] !== 'EMPTY') {
+            if (toSticker.items.includes('EMPTY')) {
+              toSticker.items = toSticker.items.filter(
+                (item) => item !== 'EMPTY'
+              );
+            }
+
+            toSticker.items = [
+              ...toSticker.items.slice(0, insertIndex),
+              'EMPTY',
+              ...toSticker.items.slice(insertIndex),
+            ];
+
+            toSticker.renderItem(toSticker.stickerEl.children[3]);
+          }
+        }
       };
 
       const onMouseUp = (upEvent) => {
-        // 제자리로 돌아가기
+        // 원래 자리로 돌아가기
         item.itemEl.style.left = '0px';
         item.itemEl.style.top = originalY;
         item.itemEl.style.zIndex = originalZIndex;
         item.itemEl.style.cursor = 'grab';
 
-        // 이동 후 위치 확인
-        const dropTarget = document.elementFromPoint(
-          upEvent.clientX,
-          upEvent.clientY
+        item.sticker.items = item.sticker.items.filter(
+          (deleteItem) =>
+            item.itemEl.id.split('-')[1] !== deleteItem.itemEl.id.split('-')[1]
         );
 
-        // 다른 스티커의 목록으로 이동할 때
-        if (
-          dropTarget &&
-          dropTarget.classList.contains('items-div') &&
-          dropTarget !== itemsDiv
-        ) {
-          this.deleteItem(item);
+        toSticker.items[insertIndex ?? 0] = item;
 
-          const toSticker = this.sticker.stickerBox.stickers.find(
-            (sticker) => sticker.stickerEl.id === dropTarget.parentElement.id
-          );
+        item.sticker.renderItem(item.sticker.stickerEl.children[3]);
+        item.sticker = toSticker;
+        toSticker.renderItem(toSticker.stickerEl.children[3]);
 
-          item.sticker = toSticker;
-          toSticker.addItem(item);
-        }
+        // // 이동 후 위치 확인
+        // const dropTarget = document.elementsFromPoint(
+        //   upEvent.clientX,
+        //   upEvent.clientY
+        // )[1];
+
+        // if (dropTarget && dropTarget)
+        // // 다른 스티커의 목록으로 이동할 때
+        // if (
+        //   dropTarget &&
+        //   dropTarget.classList.contains('items-div') &&
+        //   dropTarget !== itemsDiv
+        // ) {
+        //   this.deleteItem(item);
+
+        //   const toSticker = this.sticker.stickerBox.stickers.find(
+        //     (sticker) => sticker.stickerEl.id === dropTarget.parentElement.id
+        //   );
+
+        //   item.sticker = toSticker;
+        //   toSticker.addItem(item);
+        // }
+        draggingItem = null;
 
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
