@@ -27,7 +27,7 @@ export class Sticker {
     const stickerTitle = document.createElement('div');
     const stickerAddBtn = document.createElement('button');
     const stickerDeleteBtn = document.createElement('button');
-    const itemsDiv = document.createElement('div');
+    const itemsDiv = document.createElement('ul');
 
     sticker.id = `sticker-${stickerIndex}`;
     sticker.classList.add('sticker');
@@ -39,11 +39,12 @@ export class Sticker {
     stickerAddBtn.innerText = '항목 추가';
     stickerDeleteBtn.innerText = '스티커 삭제';
 
-    sticker.style = `
-      top: ${stickerIndex * 10 + 40}px;
-      left: ${stickerIndex * 10}px;
-      background-color: ${this.getRandomRGB()};
-    `;
+    sticker.style.top = `${stickerIndex * 10 + 40}px`;
+    sticker.style.left = `${stickerIndex * 10}px`;
+    sticker.style.zIndex = 1;
+    sticker.style.backgroundColor = `${this.getRandomRGB()}`;
+
+    this.setTop(sticker);
 
     sticker.append(stickerTitle, stickerAddBtn, stickerDeleteBtn, itemsDiv);
 
@@ -51,7 +52,6 @@ export class Sticker {
     this.generateItem(sticker);
     this.deleteSticker(sticker);
     this.moveSticker(sticker);
-    this.setTop(sticker);
 
     return sticker;
   }
@@ -73,11 +73,18 @@ export class Sticker {
     const itemsDivHeight = itemsDiv.clientHeight;
 
     itemsDiv.style = `height: ${itemsDivHeight + 50.2}px;`;
+    itemsDiv.style.margin = '0px';
+    itemsDiv.style.padding = '0px';
 
     this.renderItem(itemsDiv);
   }
 
   renderItem(itemsDiv) {
+    if (this.items.length === 0) {
+      itemsDiv.style = `height: 0px`;
+      return;
+    }
+
     this.items.forEach((item, index) => {
       item.itemEl.style.top = `${50.2 * index}px`;
       itemsDiv.append(item.itemEl);

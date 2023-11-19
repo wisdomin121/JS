@@ -8,7 +8,7 @@ export class Item {
 
   generateItem() {
     // UI
-    const item = document.createElement('div');
+    const item = document.createElement('li');
     const itemTitle = document.createElement('div');
     const itemDeleteBtn = document.createElement('button');
 
@@ -16,6 +16,8 @@ export class Item {
     item.classList.add('item');
     itemTitle.innerText = `Text ${Item.itemIndex++}`;
     itemDeleteBtn.innerText = '삭제';
+
+    item.style.cursor = 'grab';
 
     item.append(itemTitle, itemDeleteBtn);
 
@@ -25,7 +27,7 @@ export class Item {
 
       if (tagName === 'button') {
         this.deleteItem(this);
-      } else if (tagName === 'div') {
+      } else if (tagName === 'li') {
         this.moveItem(this);
       }
     });
@@ -53,6 +55,9 @@ export class Item {
     item.itemEl.addEventListener('mousedown', (e) => {
       e.stopPropagation();
 
+      item.sticker.setTop(item.sticker.stickerEl);
+      item.itemEl.style.cursor = 'grabbing';
+
       const originalY = item.itemEl.style.top;
       const originalZIndex = item.itemEl.style.zIndex;
 
@@ -71,6 +76,7 @@ export class Item {
         item.itemEl.style.left = `${x}px`;
         item.itemEl.style.top = `${y}px`;
         item.itemEl.style.zIndex = 1000;
+        item.itemEl.style.cursor = 'grabbing';
       };
 
       const onMouseUp = (upEvent) => {
@@ -78,14 +84,13 @@ export class Item {
         item.itemEl.style.left = '0px';
         item.itemEl.style.top = originalY;
         item.itemEl.style.zIndex = originalZIndex;
+        item.itemEl.style.cursor = 'grab';
 
         // 이동 후 위치 확인
         const dropTarget = document.elementFromPoint(
           upEvent.clientX,
           upEvent.clientY
         );
-
-        console.log(dropTarget);
 
         // 다른 스티커의 목록으로 이동할 때
         if (
