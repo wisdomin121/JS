@@ -8,16 +8,16 @@ export class Item {
 
   /* Item Element 생성 */
   generateItemUI() {
-    const item = document.createElement('li');
-    const itemTitle = document.createElement('div');
-    const itemDeleteBtn = document.createElement('button');
+    const item = document.createElement("li");
+    const itemTitle = document.createElement("div");
+    const itemDeleteBtn = document.createElement("button");
 
     item.id = `${Item.itemIndex}`;
-    item.classList.add('item');
+    item.classList.add("item");
     itemTitle.innerText = `Text ${Item.itemIndex++}`;
-    itemDeleteBtn.innerText = '삭제';
+    itemDeleteBtn.innerText = "삭제";
 
-    item.style.cursor = 'grab';
+    item.style.cursor = "grab";
 
     item.append(itemTitle, itemDeleteBtn);
 
@@ -25,13 +25,13 @@ export class Item {
   }
 
   patchItemEvent(item) {
-    item.addEventListener('mousedown', (e) => {
+    item.addEventListener("mousedown", (e) => {
       e.stopPropagation();
 
       const tagName = e.target.tagName.toLowerCase();
 
-      if (tagName === 'button') this.deleteItem(this);
-      else if (tagName === 'li') this.moveItem(e, this);
+      if (tagName === "button") this.deleteItem(this);
+      else if (tagName === "li") this.moveItem(e, this);
     });
 
     return item;
@@ -46,9 +46,7 @@ export class Item {
   /* 아이템 삭제 */
   deleteItem(targetItem) {
     const itemsDiv = targetItem.itemEl.parentElement;
-    const deleteIdx = this.sticker.items.findIndex(
-      (item) => item === targetItem
-    );
+    const deleteIdx = this.sticker.items.findIndex((item) => item === targetItem);
 
     this.sticker.items.splice(deleteIdx, 1);
     targetItem.itemEl.remove();
@@ -72,9 +70,10 @@ export class Item {
     draggingItem = targetEl;
 
     target.sticker.setTop(target.sticker.stickerEl);
-    targetEl.style.cursor = 'grabbing';
+    targetEl.style.cursor = "grabbing";
 
     // 원래 자리 기억
+    // x는 전부 0이라 제외
     const originInfo = {
       y: targetEl.style.top,
       zIndex: targetEl.style.zIndex,
@@ -91,9 +90,7 @@ export class Item {
     let insertIndex;
     let toSticker = target.sticker;
     let isFromSticker = true;
-    let fromStickerIndex = target.sticker.items.findIndex(
-      (i) => i.itemEl.id === targetEl.id
-    );
+    let fromStickerIndex = target.sticker.items.findIndex((i) => i.itemEl.id === targetEl.id);
 
     // Item의 onMouseMove
     const onMouseMove = (moveEvent) => {
@@ -103,27 +100,22 @@ export class Item {
       targetEl.style.left = `${clientX - itemInnerX - parentRect.left}px`;
       targetEl.style.top = `${clientY - itemInnerY - parentRect.top}px`;
       targetEl.style.zIndex = 1000;
-      targetEl.style.cursor = 'grabbing';
+      targetEl.style.cursor = "grabbing";
 
       // 가장 가까운 item 찾기
       const closestItemEl = document.elementsFromPoint(clientX, clientY)[1];
 
-      if (closestItemEl && closestItemEl.classList.contains('items-div')) {
+      if (closestItemEl && closestItemEl.classList.contains("items-div")) {
         const stickers = target.sticker.stickerBox.stickers;
 
         for (const sticker of stickers) {
           if (closestItemEl.parentElement === sticker.stickerEl) {
             toSticker = sticker;
-            isFromSticker =
-              closestItemEl.parentElement === target.sticker.stickerEl;
+            isFromSticker = closestItemEl.parentElement === target.sticker.stickerEl;
             break;
           }
         }
-      } else if (
-        closestItemEl &&
-        closestItemEl.classList.contains('item') &&
-        closestItemEl !== draggingItem
-      ) {
+      } else if (closestItemEl && closestItemEl.classList.contains("item") && closestItemEl !== draggingItem) {
         const stickers = target.sticker.stickerBox.stickers;
         let closestItem;
 
@@ -134,17 +126,15 @@ export class Item {
             if (i.itemEl === closestItemEl) {
               closestItem = i;
               toSticker = sticker;
-              isFromSticker =
-                target.sticker.stickerIndex === sticker.stickerIndex;
+              isFromSticker = target.sticker.stickerIndex === sticker.stickerIndex;
+
               break outer;
             }
           }
         }
 
         // 옮겨갈 sticker에 공간 마련하기
-        const isTop =
-          closestItemEl.style.height / 2 >
-          document.clientX - closestItemEl.getBoundingClientRect().top;
+        const isTop = closestItemEl.style.height / 2 > document.clientX - closestItemEl.getBoundingClientRect().top;
 
         // 원래 스티커 내에서의 이동
         if (isFromSticker) {
@@ -155,20 +145,17 @@ export class Item {
           }
 
           insertIndex = toSticker.items.findIndex(
-            (item) =>
-              item !== 'EMPTY' && item.itemEl.id === closestItem.itemEl.id
+            (item) => item !== "EMPTY" && item.itemEl.id === closestItem.itemEl.id
           );
 
-          if (toSticker.items[insertIndex] !== 'EMPTY') {
-            if (toSticker.items.includes('EMPTY')) {
-              toSticker.items = toSticker.items.filter(
-                (item) => item !== 'EMPTY'
-              );
+          if (toSticker.items[insertIndex] !== "EMPTY") {
+            if (toSticker.items.includes("EMPTY")) {
+              toSticker.items = toSticker.items.filter((item) => item !== "EMPTY");
             }
 
             toSticker.items = [
               ...toSticker.items.slice(0, insertIndex),
-              'EMPTY',
+              "EMPTY",
               ...toSticker.items.slice(insertIndex),
             ];
 
@@ -178,22 +165,18 @@ export class Item {
 
         // 다른 스티커로의 이동
         else {
-          insertIndex = toSticker.items.findIndex(
-            (item) => item !== 'EMPTY' && item.itemEl === closestItem.itemEl
-          );
+          insertIndex = toSticker.items.findIndex((item) => item !== "EMPTY" && item.itemEl === closestItem.itemEl);
 
           if (isTop && insertIndex === 1) insertIndex--;
 
-          if (toSticker.items[insertIndex] !== 'EMPTY') {
-            if (toSticker.items.includes('EMPTY')) {
-              toSticker.items = toSticker.items.filter(
-                (item) => item !== 'EMPTY'
-              );
+          if (toSticker.items[insertIndex] !== "EMPTY") {
+            if (toSticker.items.includes("EMPTY")) {
+              toSticker.items = toSticker.items.filter((item) => item !== "EMPTY");
             }
 
             toSticker.items = [
               ...toSticker.items.slice(0, insertIndex),
-              'EMPTY',
+              "EMPTY",
               ...toSticker.items.slice(insertIndex),
             ];
 
@@ -206,10 +189,10 @@ export class Item {
     // Item의 onMouseUp
     const onMouseUp = () => {
       // 원래 자리로 돌아가기
-      targetEl.style.left = '0px';
+      targetEl.style.left = "0px";
       targetEl.style.top = originInfo.y;
       targetEl.style.zIndex = originInfo.zIndex;
-      targetEl.style.cursor = 'grab';
+      targetEl.style.cursor = "grab";
 
       // 원래 스티커 내에서의 이동
       if (isFromSticker) {
@@ -221,7 +204,7 @@ export class Item {
         for (let sticker of stickers) {
           if (toSticker.stickerIndex === sticker.stickerIndex) continue;
 
-          const emptyIndex = sticker.items.indexOf('EMPTY');
+          const emptyIndex = sticker.items.indexOf("EMPTY");
           if (emptyIndex !== -1) {
             sticker.items.splice(emptyIndex, 1);
             sticker.renderItem(sticker.stickerEl.children[3]);
@@ -231,32 +214,42 @@ export class Item {
 
       // 다른 스티커로의 이동
       else {
-        const emptyIndex = target.sticker.items.indexOf('EMPTY');
+        const emptyIndex = target.sticker.items.indexOf("EMPTY");
 
         if (emptyIndex !== -1) {
           target.sticker.items.splice(emptyIndex, 1);
         } else {
-          target.sticker.items = target.sticker.items.filter(
-            (item) => targetEl.id !== item.itemEl.id
-          );
+          target.sticker.items = target.sticker.items.filter((item) => targetEl.id !== item.itemEl.id);
         }
 
         toSticker.items[insertIndex ?? 0] = target;
 
         target.sticker.renderItem(target.sticker.stickerEl.children[3]);
         toSticker.renderItem(toSticker.stickerEl.children[3]);
+
+        const stickers = target.sticker.stickerBox.stickers;
+        for (let sticker of stickers) {
+          if (toSticker.stickerIndex === sticker.stickerIndex || target.sticker.stickerIndex === sticker.stickerIndex)
+            continue;
+
+          const emptyIndex = sticker.items.indexOf("EMPTY");
+          if (emptyIndex !== -1) {
+            sticker.items.splice(emptyIndex, 1);
+            sticker.renderItem(sticker.stickerEl.children[3]);
+          }
+        }
         target.sticker = toSticker;
       }
 
       draggingItem = null;
 
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
 
       this.sticker.stickerBox.save();
     };
 
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
+    document.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseup", onMouseUp);
   }
 }
