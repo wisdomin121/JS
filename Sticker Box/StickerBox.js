@@ -14,5 +14,11 @@ export class StickerBox {
     this.stickerIndex++;
 
     stickerBox.append(newSticker.stickerEl);
+    this.setInputFocus(newSticker.stickerEl);
+  }
+
+  setInputFocus(stickerEl) {
+    const stickerTitleInput = stickerEl.querySelector('.sticker-title');
+    stickerTitleInput.focus();
   }
 }
