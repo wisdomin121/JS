@@ -6,7 +6,7 @@ export class Item {
     this.itemEl = this.generateItem();
   }
 
-  // Item Element 생성
+  /* Item Element 생성 */
   generateItemUI() {
     const item = document.createElement('li');
     const itemTitle = document.createElement('div');
@@ -24,7 +24,6 @@ export class Item {
     return item;
   }
 
-  // Item에 이벤트 붙이기
   patchItemEvent(item) {
     item.addEventListener('mousedown', (e) => {
       e.stopPropagation();
@@ -44,7 +43,7 @@ export class Item {
     return this.patchItemEvent(itemUI);
   }
 
-  // 아이템 삭제
+  /* 아이템 삭제 */
   deleteItem(targetItem) {
     const itemsDiv = targetItem.itemEl.parentElement;
     const deleteIdx = this.sticker.items.findIndex(
@@ -57,10 +56,12 @@ export class Item {
     itemsDiv.style.height = `${itemsDiv.clientHeight - 50.2}px`;
 
     this.sticker.renderItem(itemsDiv);
+
+    this.sticker.stickerBox.clear();
     this.sticker.stickerBox.save();
   }
 
-  // 아이템 이동
+  /* 아이템 이동 */
   moveItem(e, target) {
     let draggingItem = null;
     let isFirstFromSticker = true;
@@ -94,6 +95,7 @@ export class Item {
       (i) => i.itemEl.id === targetEl.id
     );
 
+    // Item의 onMouseMove
     const onMouseMove = (moveEvent) => {
       const clientX = moveEvent.clientX;
       const clientY = moveEvent.clientY;
@@ -177,8 +179,7 @@ export class Item {
         // 다른 스티커로의 이동
         else {
           insertIndex = toSticker.items.findIndex(
-            (item) =>
-              item !== 'EMPTY' && item.itemEl.id === closestItem.itemEl.id
+            (item) => item !== 'EMPTY' && item.itemEl === closestItem.itemEl
           );
 
           if (isTop && insertIndex === 1) insertIndex--;
@@ -202,6 +203,7 @@ export class Item {
       }
     };
 
+    // Item의 onMouseUp
     const onMouseUp = () => {
       // 원래 자리로 돌아가기
       targetEl.style.left = '0px';

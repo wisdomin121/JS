@@ -13,7 +13,7 @@ export class Sticker {
     this.isDragged = false;
   }
 
-  // 랜덤 RGB값 가져오기
+  /* 랜덤 RGB값 가져오기 */
   getRandomRGB() {
     const r = Math.floor(Math.random() * (200 - 150)) + 150;
     const g = Math.floor(Math.random() * (200 - 150)) + 150;
@@ -21,7 +21,7 @@ export class Sticker {
 
     return `rgb(${r}, ${g}, ${b})`;
   }
-
+  /* 스티커 생성 */
   generateStickerUI(stickerIndex) {
     const sticker = document.createElement('div');
     const stickerTitle = document.createElement('input');
@@ -53,7 +53,6 @@ export class Sticker {
     return sticker;
   }
 
-  // 스티커 생성
   generateSticker(stickerIndex) {
     const sticker = this.generateStickerUI(stickerIndex);
 
@@ -68,7 +67,7 @@ export class Sticker {
     return sticker;
   }
 
-  // 스티커의 item 생성
+  /* 스티커의 item 생성 */
   generateItem(sticker) {
     const btnItemAdd = sticker.querySelector('.btn-item-add');
 
@@ -91,7 +90,7 @@ export class Sticker {
     this.stickerBox.save();
   }
 
-  // itemsDiv 렌더링
+  /* itemsDiv 렌더링 */
   renderItem(itemsDiv) {
     if (this.items.length === 0) {
       itemsDiv.style = `height: 0px`;
@@ -114,14 +113,24 @@ export class Sticker {
     });
   }
 
-  // 스티커 삭제
-  deleteSticker(sticker) {
-    const btnStickerDelete = sticker.querySelector('.btn-sticker-delete');
-    btnStickerDelete.onclick = () => sticker.remove();
-    this.stickerBox.save();
+  /* 스티커 삭제 */
+  deleteSticker(deleteSticker) {
+    const btnStickerDelete = deleteSticker.querySelector('.btn-sticker-delete');
+
+    btnStickerDelete.onclick = () => {
+      const deleteIndex = this.stickerBox.stickers.findIndex(
+        (sticker) => sticker.stickerEl === deleteSticker
+      );
+
+      this.stickerBox.stickers.splice(deleteIndex, 1);
+      deleteSticker.remove();
+
+      this.stickerBox.clear();
+      this.stickerBox.save();
+    };
   }
 
-  // 스티커의 움직임
+  /* 스티커 움직임 */
   moveSticker(sticker) {
     sticker.onmousedown = (e) => {
       const clientX = e.clientX;
@@ -169,11 +178,13 @@ export class Sticker {
     const copyInput = stickerTitleInput.cloneNode();
     let originValue = stickerTitleInput.value;
 
+    // Sticker Title의 onKeyUp
     const onKeyUp = (e) => {
       if (e.key === 'Enter') e.target.blur();
     };
 
-    const onFocusOut = (e) => {
+    // Sticker Title의 onBlur
+    const onBlur = (e) => {
       const newDiv = document.createElement('div');
       newDiv.classList.add('sticker-title');
 
@@ -197,16 +208,18 @@ export class Sticker {
       e.target.replaceWith(newDiv);
     };
 
-    /* 두 번 클릭 막기 */
+    // Sticker Title의 onMouseDown
+    // = 한 번 클릭으로 제목 수정할 수 있도록
     const onMouseDown = (e) => {
       e.stopPropagation();
     };
 
+    // 이벤트 달기
     stickerTitleInput.onkeyup = (e) => onKeyUp(e);
     copyInput.onkeyup = (e) => onKeyUp(e);
 
-    stickerTitleInput.addEventListener('blur', (e) => onFocusOut(e));
-    copyInput.addEventListener('blur', (e) => onFocusOut(e));
+    stickerTitleInput.addEventListener('blur', (e) => onBlur(e));
+    copyInput.addEventListener('blur', (e) => onBlur(e));
 
     stickerTitleInput.addEventListener('mousedown', onMouseDown);
     copyInput.addEventListener('mousedown', onMouseDown);

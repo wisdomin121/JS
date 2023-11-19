@@ -8,14 +8,16 @@ generateSticker.onclick = () => {
   stickerBox.addSticker();
 };
 
+// TODO: 인덱스에 맞게 불러올 수 있도록
+// TODO: 제목도 불러올 수 있도록
+// TODO: Z-INDEX
 let stickerIndex = 0;
-
 while (stickerIndex > -1) {
-  const sticker = localStorage.getItem(`sticker-${stickerIndex++}`);
+  const sticker = JSON.parse(localStorage.getItem(`sticker-${stickerIndex++}`));
 
   if (sticker === null) break;
 
-  stickerBox.addSticker();
+  stickerBox.addSticker(sticker.stickerStyle);
 }
 
 let itemIndex = 1;
