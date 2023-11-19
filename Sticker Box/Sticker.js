@@ -10,7 +10,7 @@ export class Sticker {
 
     this.items = [];
 
-    this.isDragging = false;
+    this.isDragged = false;
   }
 
   // 랜덤 RGB값 가져오기
@@ -63,6 +63,8 @@ export class Sticker {
     this.moveSticker(sticker);
     this.changeTitle(sticker);
 
+    this.stickerBox.save();
+
     return sticker;
   }
 
@@ -85,6 +87,8 @@ export class Sticker {
     itemsDiv.style.padding = '0px';
 
     this.renderItem(itemsDiv);
+
+    this.stickerBox.save();
   }
 
   // itemsDiv 렌더링
@@ -114,6 +118,7 @@ export class Sticker {
   deleteSticker(sticker) {
     const btnStickerDelete = sticker.querySelector('.btn-sticker-delete');
     btnStickerDelete.onclick = () => sticker.remove();
+    this.stickerBox.save();
   }
 
   // 스티커의 움직임
@@ -132,7 +137,7 @@ export class Sticker {
         sticker.style.top = e.pageY - shiftY + 'px';
 
         if (clientX !== e.clientX || clientY !== e.clientY) {
-          sticker.isDragging = true;
+          sticker.isDragged = true;
         }
       }
 
@@ -142,58 +147,57 @@ export class Sticker {
       }
 
       document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
+      document.addEventListener('mouseup', () => {
+        this.stickerBox.save();
+        return onMouseUp();
+      });
 
       sticker.onmouseup = null;
     };
 
-    sticker.ondragstart = () => {
-      return false;
-    };
+    sticker.ondragstart = () => false;
   }
 
-  // 스티커 최상단으로 이동
+  /* 스티커 최상단으로 이동 */
   setTop(sticker) {
     sticker.style.zIndex = Sticker.highestZIndex++;
   }
 
-  // 스티커 제목 변경
+  /* 스티커 제목 변경 */
   changeTitle(sticker) {
     const stickerTitleInput = sticker.querySelector('.sticker-title');
     const copyInput = stickerTitleInput.cloneNode();
     let originValue = stickerTitleInput.value;
 
     const onKeyUp = (e) => {
-      if (e.key === 'Enter') {
-        e.target.blur();
-      }
+      if (e.key === 'Enter') e.target.blur();
     };
 
     const onFocusOut = (e) => {
-      const input = e.target;
       const newDiv = document.createElement('div');
       newDiv.classList.add('sticker-title');
 
-      if (input.value === '') {
+      if (e.target.value === '') {
         newDiv.innerText = originValue;
       } else {
-        newDiv.innerText = input.value;
-        originValue = input.value;
+        newDiv.innerText = e.target.value;
+        originValue = e.target.value;
       }
 
       newDiv.addEventListener('click', () => {
-        if (!sticker.isDragging) {
+        if (!sticker.isDragged) {
           copyInput.value = newDiv.innerText;
           newDiv.replaceWith(copyInput);
           copyInput.focus();
         } else {
-          sticker.isDragging = false;
+          sticker.isDragged = false;
         }
       });
 
-      input.replaceWith(newDiv);
+      e.target.replaceWith(newDiv);
     };
 
+    /* 두 번 클릭 막기 */
     const onMouseDown = (e) => {
       e.stopPropagation();
     };
@@ -201,10 +205,12 @@ export class Sticker {
     stickerTitleInput.onkeyup = (e) => onKeyUp(e);
     copyInput.onkeyup = (e) => onKeyUp(e);
 
+    stickerTitleInput.addEventListener('blur', (e) => onFocusOut(e));
+    copyInput.addEventListener('blur', (e) => onFocusOut(e));
+
     stickerTitleInput.addEventListener('mousedown', onMouseDown);
     copyInput.addEventListener('mousedown', onMouseDown);
 
-    stickerTitleInput.addEventListener('blur', (e) => onFocusOut(e));
-    copyInput.addEventListener('blur', (e) => onFocusOut(e));
+    this.stickerBox.save();
   }
 }

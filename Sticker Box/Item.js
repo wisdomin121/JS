@@ -6,7 +6,7 @@ export class Item {
     this.itemEl = this.generateItem();
   }
 
-  // Item HTML 생성
+  // Item Element 생성
   generateItemUI() {
     const item = document.createElement('li');
     const itemTitle = document.createElement('div');
@@ -40,6 +40,7 @@ export class Item {
 
   generateItem() {
     const itemUI = this.generateItemUI();
+    this.sticker.stickerBox.save();
     return this.patchItemEvent(itemUI);
   }
 
@@ -56,6 +57,7 @@ export class Item {
     itemsDiv.style.height = `${itemsDiv.clientHeight - 50.2}px`;
 
     this.sticker.renderItem(itemsDiv);
+    this.sticker.stickerBox.save();
   }
 
   // 아이템 이동
@@ -248,6 +250,8 @@ export class Item {
 
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
+
+      this.sticker.stickerBox.save();
     };
 
     document.addEventListener('mousemove', onMouseMove);
