@@ -163,9 +163,9 @@ export class Sticker {
     const copyInput = stickerTitleInput.cloneNode();
     let originValue = stickerTitleInput.value;
 
-    const onKeyUp = (e, input) => {
+    const onKeyUp = (e) => {
       if (e.key === 'Enter') {
-        input.blur();
+        e.target.blur();
       }
     };
 
@@ -173,6 +173,7 @@ export class Sticker {
       const input = e.target;
       const newDiv = document.createElement('div');
       newDiv.classList.add('sticker-title');
+
       if (input.value === '') {
         newDiv.innerText = originValue;
       } else {
@@ -197,8 +198,8 @@ export class Sticker {
       e.stopPropagation();
     };
 
-    stickerTitleInput.onkeyup = (e) => onKeyUp(e, stickerTitleInput);
-    copyInput.onkeyup = (e) => onKeyUp(e, copyInput);
+    stickerTitleInput.onkeyup = (e) => onKeyUp(e);
+    copyInput.onkeyup = (e) => onKeyUp(e);
 
     stickerTitleInput.addEventListener('mousedown', onMouseDown);
     copyInput.addEventListener('mousedown', onMouseDown);
