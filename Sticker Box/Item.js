@@ -63,6 +63,7 @@ export class Item {
   // 아이템 이동
   moveItem(item) {
     let draggingItem = null;
+    let originStickerCount = 0;
 
     item.itemEl.addEventListener('mousedown', (e) => {
       e.stopPropagation();
@@ -85,7 +86,11 @@ export class Item {
       const itemInnerY = e.clientY - itemRect.top;
 
       let insertIndex;
-      let toSticker;
+      let toSticker = item.sticker;
+      let isOriginSticker = true;
+      let originIndex = item.sticker.items.findIndex(
+        (i) => i.itemEl.id.split('-')[1] === item.itemEl.id.split('-')[1]
+      );
 
       const onMouseMove = (moveEvent) => {
         const x = moveEvent.clientX;
@@ -100,7 +105,7 @@ export class Item {
         const isTop =
           closestItemEl.style.height / 2 >
           document.clientX - closestItemEl.getBoundingClientRect().top;
-
+        console.log(closestItemEl);
         if (
           closestItemEl &&
           closestItemEl.classList.contains('item') &&
@@ -112,84 +117,117 @@ export class Item {
           outer: for (const sticker of stickers) {
             const items = sticker.items;
 
-            for (let item of items) {
-              if (item.itemEl === closestItemEl) {
-                closestItem = item;
+            for (let i of items) {
+              if (i.itemEl === closestItemEl) {
+                closestItem = i;
                 toSticker = sticker;
+                isOriginSticker = item.sticker === sticker;
+
                 break outer;
               }
             }
           }
 
           // 옮겨갈 sticker에 공간 마련하기
-          // TODO: 옮겨갈 STICKER가 원래 sticker이면 ?
-          insertIndex = toSticker.items.findIndex(
-            (item) =>
-              item !== 'EMPTY' &&
-              item.itemEl.id.split('-')[1] ===
-                closestItem.itemEl.id.split('-')[1]
-          );
-
-          if (isTop && insertIndex === 1) insertIndex--;
-
-          if (toSticker.items[insertIndex] !== 'EMPTY') {
-            if (toSticker.items.includes('EMPTY')) {
-              toSticker.items = toSticker.items.filter(
-                (item) => item !== 'EMPTY'
-              );
+          if (isOriginSticker) {
+            if (originStickerCount++ === 0) {
+              toSticker.items.splice(originIndex, 1);
+              toSticker.renderItem(toSticker.stickerEl.children[3]);
             }
 
-            toSticker.items = [
-              ...toSticker.items.slice(0, insertIndex),
-              'EMPTY',
-              ...toSticker.items.slice(insertIndex),
-            ];
+            insertIndex = toSticker.items.findIndex(
+              (item) =>
+                item !== 'EMPTY' &&
+                item.itemEl.id.split('-')[1] ===
+                  closestItem.itemEl.id.split('-')[1]
+            );
 
-            toSticker.renderItem(toSticker.stickerEl.children[3]);
+            if (toSticker.items[insertIndex] !== 'EMPTY') {
+              if (toSticker.items.includes('EMPTY')) {
+                toSticker.items = toSticker.items.filter(
+                  (item) => item !== 'EMPTY'
+                );
+              }
+
+              toSticker.items = [
+                ...toSticker.items.slice(0, insertIndex),
+                'EMPTY',
+                ...toSticker.items.slice(insertIndex),
+              ];
+
+              toSticker.renderItem(toSticker.stickerEl.children[3]);
+            }
+          } else {
+            insertIndex = toSticker.items.findIndex(
+              (item) =>
+                item !== 'EMPTY' &&
+                item.itemEl.id.split('-')[1] ===
+                  closestItem.itemEl.id.split('-')[1]
+            );
+
+            if (isTop && insertIndex === 1) insertIndex--;
+
+            if (toSticker.items[insertIndex] !== 'EMPTY') {
+              if (toSticker.items.includes('EMPTY')) {
+                toSticker.items = toSticker.items.filter(
+                  (item) => item !== 'EMPTY'
+                );
+              }
+
+              toSticker.items = [
+                ...toSticker.items.slice(0, insertIndex),
+                'EMPTY',
+                ...toSticker.items.slice(insertIndex),
+              ];
+
+              toSticker.renderItem(toSticker.stickerEl.children[3]);
+            }
           }
         }
       };
 
-      const onMouseUp = (upEvent) => {
+      const onMouseUp = () => {
         // 원래 자리로 돌아가기
         item.itemEl.style.left = '0px';
         item.itemEl.style.top = originalY;
         item.itemEl.style.zIndex = originalZIndex;
         item.itemEl.style.cursor = 'grab';
 
-        item.sticker.items = item.sticker.items.filter(
-          (deleteItem) =>
-            item.itemEl.id.split('-')[1] !== deleteItem.itemEl.id.split('-')[1]
-        );
+        console.log(toSticker);
 
-        toSticker.items[insertIndex ?? 0] = item;
+        if (isOriginSticker) {
+          console.log('원래');
+          toSticker.items[insertIndex ?? originIndex] = item;
+          toSticker.renderItem(toSticker.stickerEl.children[3]);
+          originStickerCount = 0;
 
-        item.sticker.renderItem(item.sticker.stickerEl.children[3]);
-        item.sticker = toSticker;
-        toSticker.renderItem(toSticker.stickerEl.children[3]);
+          const stickers = item.sticker.stickerBox.stickers;
 
-        // // 이동 후 위치 확인
-        // const dropTarget = document.elementsFromPoint(
-        //   upEvent.clientX,
-        //   upEvent.clientY
-        // )[1];
+          for (let sticker of stickers) {
+            if (toSticker.stickerIndex === sticker.stickerIndex) continue;
 
-        // if (dropTarget && dropTarget)
-        // // 다른 스티커의 목록으로 이동할 때
-        // if (
-        //   dropTarget &&
-        //   dropTarget.classList.contains('items-div') &&
-        //   dropTarget !== itemsDiv
-        // ) {
-        //   this.deleteItem(item);
+            const emptyIndex = sticker.items.indexOf('EMPTY');
+            sticker.items.splice(emptyIndex, 1);
+            sticker.renderItem(sticker.stickerEl.children[3]);
+          }
+        } else {
+          if (item.sticker.items.includes('EMPTY')) {
+            item.sticker.items.splice(item.sticker.items.indexOf('EMPTY'), 1);
+          } else {
+            item.sticker.items = item.sticker.items.filter(
+              (deleteItem) =>
+                item.itemEl.id.split('-')[1] !==
+                deleteItem.itemEl.id.split('-')[1]
+            );
+          }
 
-        //   const toSticker = this.sticker.stickerBox.stickers.find(
-        //     (sticker) => sticker.stickerEl.id === dropTarget.parentElement.id
-        //   );
+          toSticker.items[insertIndex ?? 0] = item;
 
-        //   item.sticker = toSticker;
-        //   toSticker.addItem(item);
-        // }
+          item.sticker.renderItem(item.sticker.stickerEl.children[3]);
+          item.sticker = toSticker;
+          toSticker.renderItem(toSticker.stickerEl.children[3]);
+        }
+
         draggingItem = null;
 
         document.removeEventListener('mousemove', onMouseMove);
