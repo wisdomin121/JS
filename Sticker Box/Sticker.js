@@ -61,7 +61,7 @@ export class Sticker {
     return sticker;
   }
 
-  // 스티커의 항목 생성
+  // 스티커의 item 생성
   generateItem(sticker) {
     const btnItemAdd = sticker.querySelector('.btn-item-add');
 
@@ -89,15 +89,14 @@ export class Sticker {
       return;
     }
 
+    for (let li of itemsDiv.children) {
+      if (li.tagName.toLowerCase() !== 'li') li.remove();
+    }
+
     itemsDiv.style.height = `${this.items.length * 50.2}px`;
 
     this.items.forEach((item, index) => {
       if (item === 'EMPTY') {
-        const emptyDiv = document.createElement('div');
-        emptyDiv.style.top = `${50.2 * index}px`;
-        emptyDiv.style.height = '47.44px';
-        emptyDiv.style.backgroundColor = '#000000';
-
         itemsDiv.append(document.createElement('div'));
       } else {
         item.itemEl.style.top = `${50.2 * index}px`;
@@ -118,7 +117,6 @@ export class Sticker {
       let shiftX = e.clientX - sticker.getBoundingClientRect().left;
       let shiftY = e.clientY - sticker.getBoundingClientRect().top;
 
-      // 클릭 시, 최상단으로
       this.setTop(sticker);
 
       function onMouseMove(e) {
