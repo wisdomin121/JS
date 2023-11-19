@@ -3,7 +3,7 @@ import { Sticker } from './Sticker.js';
 export class StickerBox {
   constructor() {
     this.stickers = [];
-    this.stickerIndex = -1;
+    this.stickerIndex = 1;
   }
 
   addSticker() {

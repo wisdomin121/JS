@@ -7,107 +7,108 @@ export class Item {
   }
 
   generateItem() {
+    // UI
     const item = document.createElement('div');
     const itemTitle = document.createElement('div');
     const itemDeleteBtn = document.createElement('button');
 
+    item.id = `item-${Item.itemIndex}`;
     item.classList.add('item');
-
     itemTitle.innerText = `Text ${Item.itemIndex++}`;
     itemDeleteBtn.innerText = '삭제';
 
     item.append(itemTitle, itemDeleteBtn);
 
-    // 이벤트 붙이기
-    item.onclick = (e) => {
+    // 클릭 이벤트 핸들러 등록
+    item.addEventListener('click', (e) => {
       const tagName = e.target.tagName.toLowerCase();
 
-      if (tagName === 'button') this.deleteItem(item);
-      else if (tagName === 'div') this.moveItem(item);
-    };
+      if (tagName === 'button') {
+        this.deleteItem(this);
+      } else if (tagName === 'div') {
+        this.moveItem(this);
+      }
+    });
 
     return item;
   }
 
   // 아이템 삭제
   deleteItem(item) {
-    const itemList = this.sticker.stickerEl.children[3];
+    const itemsDiv = item.itemEl.parentElement;
     const deleteIdx = this.sticker.items.findIndex(
       (stickerItem) => stickerItem === item
     );
 
     this.sticker.items.splice(deleteIdx, 1);
-    item.remove();
+    item.itemEl.remove();
 
-    itemList.style = `height: ${itemList.clientHeight - 50.2}px;`;
+    itemsDiv.style.height = `${itemsDiv.clientHeight - 50.2}px`;
 
-    this.sticker.renderItem(itemList);
+    this.sticker.renderItem(itemsDiv);
   }
 
-  // 아이템 움직임
+  // 아이템 이동
   moveItem(item) {
-    item.onmousedown = (e) => {
+    item.itemEl.addEventListener('mousedown', (e) => {
       e.stopPropagation();
 
-      const itemList = item.parentElement;
-      const parentRect = itemList.getBoundingClientRect();
-      const itemRect = item.getBoundingClientRect();
+      const originalY = item.itemEl.style.top;
+      const originalZIndex = item.itemEl.style.zIndex;
 
-      const offsetX = e.clientX - itemRect.left;
-      const offsetY = e.clientY - itemRect.top;
+      const itemsDiv = item.itemEl.parentElement;
 
-      function onMouseMove(e) {
-        const x = e.clientX - offsetX - parentRect.left;
-        const y = e.clientY - offsetY - parentRect.top;
+      const parentRect = itemsDiv.getBoundingClientRect();
+      const itemRect = item.itemEl.getBoundingClientRect();
 
-        item.style.left = `${x}px`;
-        item.style.top = `${y}px`;
-      }
+      const itemInnerX = e.clientX - itemRect.left;
+      const itemInnerY = e.clientY - itemRect.top;
 
-      function onMouseUp(mouseUpEvent) {
-        function getNowElement(x, y) {
-          const elements = document.elementsFromPoint(x, y);
-          let isPass = false;
+      const onMouseMove = (moveEvent) => {
+        const x = moveEvent.clientX - itemInnerX - parentRect.left;
+        const y = moveEvent.clientY - itemInnerY - parentRect.top;
 
-          for (let i = elements.length - 1; i >= 0; i--) {
-            const element = elements[i];
-            const rect = element.getBoundingClientRect();
+        item.itemEl.style.left = `${x}px`;
+        item.itemEl.style.top = `${y}px`;
+        item.itemEl.style.zIndex = 1000;
+      };
 
-            if (
-              x >= rect.left &&
-              x <= rect.right &&
-              y >= rect.top &&
-              y <= rect.bottom
-            ) {
-              if (isPass) return element;
-              else isPass = true;
-            }
-          }
+      const onMouseUp = (upEvent) => {
+        // 제자리로 돌아가기
+        item.itemEl.style.left = '0px';
+        item.itemEl.style.top = originalY;
+        item.itemEl.style.zIndex = originalZIndex;
 
-          return null;
-        }
-
-        const dropTarget = getNowElement(
-          mouseUpEvent.clientX,
-          mouseUpEvent.clientY
+        // 이동 후 위치 확인
+        const dropTarget = document.elementFromPoint(
+          upEvent.clientX,
+          upEvent.clientY
         );
 
-        // 다른 div로 옮겨갔을 때
+        console.log(dropTarget);
+
+        // 다른 스티커의 목록으로 이동할 때
         if (
-          dropTarget.className === 'items-div' &&
-          dropTarget !== item.parentElement
+          dropTarget &&
+          dropTarget.classList.contains('items-div') &&
+          dropTarget !== itemsDiv
         ) {
           this.deleteItem(item);
 
-          // TODO: this.sticker에 dropTarget을 stickerEl로 가지고 있는 Sticker 클래스 객체를 집어넣어야 함..
+          const toSticker = this.sticker.stickerBox.stickers.find(
+            (sticker) => sticker.stickerEl.id === dropTarget.parentElement.id
+          );
+
+          item.sticker = toSticker;
+          toSticker.addItem(item);
         }
 
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
-      }
+      };
 
       document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp.bind(this));
-    };
+      document.addEventListener('mouseup', onMouseUp);
+    });
   }
 }

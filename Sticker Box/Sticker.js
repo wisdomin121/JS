@@ -22,12 +22,14 @@ export class Sticker {
 
   // 스티커 생성
   generateSticker(stickerIndex) {
+    // UI
     const sticker = document.createElement('div');
     const stickerTitle = document.createElement('div');
     const stickerAddBtn = document.createElement('button');
     const stickerDeleteBtn = document.createElement('button');
     const itemsDiv = document.createElement('div');
 
+    sticker.id = `sticker-${stickerIndex}`;
     sticker.classList.add('sticker');
     itemsDiv.classList.add('items-div');
     stickerAddBtn.classList.add('btn-item-add');
@@ -45,8 +47,8 @@ export class Sticker {
 
     sticker.append(stickerTitle, stickerAddBtn, stickerDeleteBtn, itemsDiv);
 
-    // 이벤트 붙이기
-    this.addItem(sticker);
+    // 이벤트 추가
+    this.generateItem(sticker);
     this.deleteSticker(sticker);
     this.moveSticker(sticker);
     this.setTop(sticker);
@@ -55,25 +57,30 @@ export class Sticker {
   }
 
   // 스티커의 항목 생성
-  addItem(sticker) {
+  generateItem(sticker) {
     const btnItemAdd = sticker.querySelector('.btn-item-add');
 
     btnItemAdd.onclick = () => {
-      const itemList = sticker.children[3];
-      const itemListHeight = itemList.clientHeight;
-      const newItem = new Item(this).itemEl;
-
-      this.items.push(newItem);
-      itemList.style = `height: ${itemListHeight + 50.2}px;`;
-
-      this.renderItem(itemList);
+      const newItem = new Item(this);
+      this.addItem(newItem);
     };
   }
 
-  renderItem(itemList) {
+  addItem(item) {
+    this.items.push(item);
+
+    const itemsDiv = this.stickerEl.children[3];
+    const itemsDivHeight = itemsDiv.clientHeight;
+
+    itemsDiv.style = `height: ${itemsDivHeight + 50.2}px;`;
+
+    this.renderItem(itemsDiv);
+  }
+
+  renderItem(itemsDiv) {
     this.items.forEach((item, index) => {
-      item.style.top = `${50.2 * index}px`;
-      itemList.append(item);
+      item.itemEl.style.top = `${50.2 * index}px`;
+      itemsDiv.append(item.itemEl);
     });
   }
 
