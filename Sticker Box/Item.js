@@ -1,20 +1,28 @@
 export class Item {
   static itemIndex = 1;
 
-  constructor(sticker) {
+  constructor(sticker, userInfo) {
     this.sticker = sticker;
-    this.itemEl = this.generateItem();
+    this.itemEl = this.generateItem(userInfo);
   }
 
   /* Item Element 생성 */
-  generateItemUI() {
+  generateItemUI(itemInfo) {
     const item = document.createElement("li");
     const itemTitle = document.createElement("div");
     const itemDeleteBtn = document.createElement("button");
 
-    item.id = `${Item.itemIndex}`;
+    if (itemInfo) {
+      itemInfo = JSON.parse(itemInfo);
+      item.id = `${itemInfo.itemIndex}`;
+      itemTitle.innerText = `Text ${itemInfo.itemIndex}`;
+      Item.itemIndex = +itemInfo.itemIndex >= Item.itemIndex ? +itemInfo.itemIndex + 1 : Item.itemIndex;
+    } else {
+      item.id = `${Item.itemIndex}`;
+      itemTitle.innerText = `Text ${Item.itemIndex++}`;
+    }
+
     item.classList.add("item");
-    itemTitle.innerText = `Text ${Item.itemIndex++}`;
     itemDeleteBtn.innerText = "삭제";
 
     item.style.cursor = "grab";
@@ -37,9 +45,8 @@ export class Item {
     return item;
   }
 
-  generateItem() {
-    const itemUI = this.generateItemUI();
-    this.sticker.stickerBox.save();
+  generateItem(itemInfo) {
+    const itemUI = this.generateItemUI(itemInfo);
     return this.patchItemEvent(itemUI);
   }
 
@@ -56,7 +63,6 @@ export class Item {
     this.sticker.renderItem(itemsDiv);
 
     this.sticker.stickerBox.clear();
-    this.sticker.stickerBox.save();
   }
 
   /* 아이템 이동 */
@@ -245,8 +251,6 @@ export class Item {
 
       document.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseup", onMouseUp);
-
-      this.sticker.stickerBox.save();
     };
 
     document.addEventListener("mousemove", onMouseMove);

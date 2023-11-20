@@ -1,4 +1,4 @@
-import { Item } from './Item.js';
+import { Item } from "./Item.js";
 
 export class Sticker {
   static highestZIndex = 0;
@@ -23,23 +23,23 @@ export class Sticker {
   }
   /* 스티커 생성 */
   generateStickerUI(stickerIndex) {
-    const sticker = document.createElement('div');
-    const stickerTitle = document.createElement('input');
-    const stickerAddBtn = document.createElement('button');
-    const stickerDeleteBtn = document.createElement('button');
-    const itemsDiv = document.createElement('ul');
+    const sticker = document.createElement("div");
+    const stickerTitle = document.createElement("input");
+    const stickerAddBtn = document.createElement("button");
+    const stickerDeleteBtn = document.createElement("button");
+    const itemsDiv = document.createElement("ul");
 
     sticker.id = `sticker-${stickerIndex}`;
-    sticker.classList.add('sticker');
-    itemsDiv.classList.add('items-div');
-    stickerAddBtn.classList.add('btn-item-add');
-    stickerDeleteBtn.classList.add('btn-sticker-delete');
-    stickerTitle.classList.add('sticker-title');
+    sticker.classList.add("sticker");
+    itemsDiv.classList.add("items-div");
+    stickerAddBtn.classList.add("btn-item-add");
+    stickerDeleteBtn.classList.add("btn-sticker-delete");
+    stickerTitle.classList.add("sticker-title");
 
     stickerTitle.innerText = `Sticker ${stickerIndex}`;
-    stickerAddBtn.innerText = '항목 추가';
-    stickerDeleteBtn.innerText = '스티커 삭제';
-    stickerTitle.value = 'Sticker';
+    stickerAddBtn.innerText = "항목 추가";
+    stickerDeleteBtn.innerText = "스티커 삭제";
+    stickerTitle.value = "Sticker";
 
     sticker.style.top = `${stickerIndex * 10 + 40}px`;
     sticker.style.left = `${stickerIndex * 10}px`;
@@ -62,17 +62,25 @@ export class Sticker {
     this.moveSticker(sticker);
     this.changeTitle(sticker);
 
-    this.stickerBox.save();
-
     return sticker;
   }
 
   /* 스티커의 item 생성 */
   generateItem(sticker) {
-    const btnItemAdd = sticker.querySelector('.btn-item-add');
+    const btnItemAdd = sticker.querySelector(".btn-item-add");
 
-    btnItemAdd.onclick = () => {
-      const newItem = new Item(this);
+    btnItemAdd.onclick = (e) => {
+      let newItem;
+
+      const userInfo = e.target.getAttribute("data-userInfo");
+
+      if (userInfo) {
+        newItem = new Item(this, userInfo);
+      } else {
+        newItem = new Item(this);
+      }
+
+      e.target.removeAttribute("data-userInfo");
       this.addItem(newItem);
     };
   }
@@ -82,12 +90,10 @@ export class Sticker {
 
     const itemsDiv = this.stickerEl.children[3];
 
-    itemsDiv.style.margin = '0px';
-    itemsDiv.style.padding = '0px';
+    itemsDiv.style.margin = "0px";
+    itemsDiv.style.padding = "0px";
 
     this.renderItem(itemsDiv);
-
-    this.stickerBox.save();
   }
 
   /* itemsDiv 렌더링 */
@@ -98,14 +104,14 @@ export class Sticker {
     }
 
     for (let li of itemsDiv.children) {
-      if (li.tagName.toLowerCase() !== 'li') li.remove();
+      if (li.tagName.toLowerCase() !== "li") li.remove();
     }
 
     itemsDiv.style.height = `${this.items.length * 50.2}px`;
 
     this.items.forEach((item, index) => {
-      if (item === 'EMPTY') {
-        itemsDiv.append(document.createElement('div'));
+      if (item === "EMPTY") {
+        itemsDiv.append(document.createElement("div"));
       } else {
         item.itemEl.style.top = `${50.2 * index}px`;
         itemsDiv.append(item.itemEl);
@@ -115,18 +121,15 @@ export class Sticker {
 
   /* 스티커 삭제 */
   deleteSticker(deleteSticker) {
-    const btnStickerDelete = deleteSticker.querySelector('.btn-sticker-delete');
+    const btnStickerDelete = deleteSticker.querySelector(".btn-sticker-delete");
 
     btnStickerDelete.onclick = () => {
-      const deleteIndex = this.stickerBox.stickers.findIndex(
-        (sticker) => sticker.stickerEl === deleteSticker
-      );
+      const deleteIndex = this.stickerBox.stickers.findIndex((sticker) => sticker.stickerEl === deleteSticker);
 
       this.stickerBox.stickers.splice(deleteIndex, 1);
       deleteSticker.remove();
 
       this.stickerBox.clear();
-      this.stickerBox.save();
     };
   }
 
@@ -142,8 +145,8 @@ export class Sticker {
       this.setTop(sticker);
 
       function onMouseMove(e) {
-        sticker.style.left = e.pageX - shiftX + 'px';
-        sticker.style.top = e.pageY - shiftY + 'px';
+        sticker.style.left = e.pageX - shiftX + "px";
+        sticker.style.top = e.pageY - shiftY + "px";
 
         if (clientX !== e.clientX || clientY !== e.clientY) {
           sticker.isDragged = true;
@@ -151,13 +154,12 @@ export class Sticker {
       }
 
       function onMouseUp() {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
       }
 
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', () => {
-        this.stickerBox.save();
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", () => {
         return onMouseUp();
       });
 
@@ -174,28 +176,28 @@ export class Sticker {
 
   /* 스티커 제목 변경 */
   changeTitle(sticker) {
-    const stickerTitleInput = sticker.querySelector('.sticker-title');
+    const stickerTitleInput = sticker.querySelector(".sticker-title");
     const copyInput = stickerTitleInput.cloneNode();
     let originValue = stickerTitleInput.value;
 
     // Sticker Title의 onKeyUp
     const onKeyUp = (e) => {
-      if (e.key === 'Enter') e.target.blur();
+      if (e.key === "Enter") e.target.blur();
     };
 
     // Sticker Title의 onBlur
     const onBlur = (e) => {
-      const newDiv = document.createElement('div');
-      newDiv.classList.add('sticker-title');
+      const newDiv = document.createElement("div");
+      newDiv.classList.add("sticker-title");
 
-      if (e.target.value === '') {
+      if (e.target.value === "") {
         newDiv.innerText = originValue;
       } else {
         newDiv.innerText = e.target.value;
         originValue = e.target.value;
       }
 
-      newDiv.addEventListener('click', () => {
+      newDiv.addEventListener("click", () => {
         if (!sticker.isDragged) {
           copyInput.value = newDiv.innerText;
           newDiv.replaceWith(copyInput);
@@ -218,12 +220,10 @@ export class Sticker {
     stickerTitleInput.onkeyup = (e) => onKeyUp(e);
     copyInput.onkeyup = (e) => onKeyUp(e);
 
-    stickerTitleInput.addEventListener('blur', (e) => onBlur(e));
-    copyInput.addEventListener('blur', (e) => onBlur(e));
+    stickerTitleInput.addEventListener("blur", (e) => onBlur(e));
+    copyInput.addEventListener("blur", (e) => onBlur(e));
 
-    stickerTitleInput.addEventListener('mousedown', onMouseDown);
-    copyInput.addEventListener('mousedown', onMouseDown);
-
-    this.stickerBox.save();
+    stickerTitleInput.addEventListener("mousedown", onMouseDown);
+    copyInput.addEventListener("mousedown", onMouseDown);
   }
 }

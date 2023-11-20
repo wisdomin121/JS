@@ -1,4 +1,4 @@
-import { Sticker } from './Sticker.js';
+import { Sticker } from "./Sticker.js";
 
 export class StickerBox {
   constructor() {
@@ -8,15 +8,15 @@ export class StickerBox {
 
   /* 스티커 추가하기 */
   addSticker(style = null) {
-    const stickerBox = document.getElementById('sticker-box');
+    const stickerBox = document.getElementById("sticker-box");
     const newSticker = new Sticker(this);
-    const stickerTitle = newSticker.stickerEl.querySelector('.sticker-title');
-
+    const stickerTitle = newSticker.stickerEl.querySelector(".sticker-title");
+    console.log(style);
     if (style) {
       newSticker.stickerEl.style.left = style.left;
       newSticker.stickerEl.style.top = style.top;
       newSticker.stickerEl.style.backgroundColor = style.backgroundColor;
-      stickerTitle.innerText = style.stickerTitle;
+      stickerTitle.value = style.stickerTitle;
     }
 
     this.stickers.push(newSticker);
@@ -27,7 +27,7 @@ export class StickerBox {
   }
 
   setInputFocus(stickerEl) {
-    const stickerTitleInput = stickerEl.querySelector('.sticker-title');
+    const stickerTitleInput = stickerEl.querySelector(".sticker-title");
     stickerTitleInput.focus();
   }
 
@@ -37,29 +37,37 @@ export class StickerBox {
   }
 
   save() {
+    const saveStickers = [];
+
     this.stickers.forEach((sticker, stickerIndex) => {
+      const saveItems = [];
+
       sticker.items.forEach((item) => {
-        localStorage.setItem(
-          `item-${item.itemEl.id}`,
-          JSON.stringify({
-            itemIndex: item.itemEl.id,
-            stickerIndex: item.sticker.stickerIndex,
-          })
-        );
+        const saveItem = {
+          itemIndex: item.itemEl.id,
+          stickerIndex: item.sticker.stickerIndex,
+        };
+
+        localStorage.setItem(`item-${item.itemEl.id}`, JSON.stringify(saveItem));
+        saveItems.push(saveItem);
       });
 
-      localStorage.setItem(
-        `sticker-${stickerIndex}`,
-        JSON.stringify({
-          stickerIndex: sticker.stickerIndex,
-          stickerStyle: {
-            left: sticker.stickerEl.style.left,
-            top: sticker.stickerEl.style.top,
-            backgroundColor: sticker.stickerEl.style.backgroundColor,
-            stickerTitle: sticker.stickerEl.children[0].innerText,
-          },
-        })
-      );
+      const saveSticker = {
+        items: JSON.stringify(saveItems),
+        stickerIndex: sticker.stickerIndex,
+        stickerStyle: {
+          left: sticker.stickerEl.style.left,
+          top: sticker.stickerEl.style.top,
+          backgroundColor: sticker.stickerEl.style.backgroundColor,
+          stickerTitle: sticker.stickerEl.children[0].innerText,
+        },
+      };
+
+      localStorage.setItem(`sticker-${stickerIndex}`, JSON.stringify(saveSticker));
+
+      saveStickers.push(saveSticker);
     });
+
+    localStorage.setItem("stickers", JSON.stringify(saveStickers));
   }
 }
