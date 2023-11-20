@@ -45,6 +45,7 @@ export class Sticker {
     sticker.style.left = `${stickerIndex * 10}px`;
     sticker.style.zIndex = 1;
     sticker.style.backgroundColor = `${this.getRandomRGB()}`;
+    itemsDiv.style.height = "50px";
 
     this.setTop(sticker);
 
@@ -99,14 +100,13 @@ export class Sticker {
   /* itemsDiv 렌더링 */
   renderItem(itemsDiv) {
     if (this.items.length === 0) {
-      itemsDiv.style = `height: 0px`;
+      itemsDiv.style = `height: 50px`;
       return;
     }
 
     for (let li of itemsDiv.children) {
       if (li.tagName.toLowerCase() !== "li") li.remove();
     }
-
     itemsDiv.style.height = `${this.items.length * 50.2}px`;
 
     this.items.forEach((item, index) => {
